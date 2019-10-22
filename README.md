@@ -1,14 +1,11 @@
 # DOT
----
 code submission to NeurIPS2019 of the paper "Discriminator optimal transport".
 
 # Environment
----
 DL framework for python is `chainer`.
 GPU is necessary.
 
 # Demos
----
 Demos can be excuted by
  1. 2d_demo.ipynb
  2. execute_dot.py
@@ -38,8 +35,8 @@ For example,
 $ python excute_dot.py --gpu 0 --model SAGAN --transport dot --lr 0.01 --N_update 30 --showing_period 30
 ```
 
-executes latent space DOT by using SAGAN models by applying 30 times SGD with lr 0.01.
-The log of IS and FID will be written under scores/ every "showing_period" update by using 50000 samples.
+executes latent space DOT by using `SAGAN` models by applying `30` times SGD with `lr 0.01`.
+The log of IS and FID will be written under scores/ every `showing_period` update by using 50000 samples.
 
 ## 3. execute_dot_cond.py:
 The python script file execute conditional DOT.
@@ -54,9 +51,7 @@ The npz data is in public: https://drive.google.com/drive/folders/1m04Db3HbN10Tz
 
 In addition to it, please clone directories
 >https://github.com/pfnet-research/sngan_projection/tree/master/gen_models
-
 >https://github.com/pfnet-research/sngan_projection/tree/master/dis_models
-
 >https://github.com/pfnet-research/sngan_projection/tree/master/source
 
 to this directory.
