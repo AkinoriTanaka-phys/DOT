@@ -13,12 +13,13 @@ Demos can be excuted by
 
 ## 1. 2d_demo.ipynb:
 This notebook executes 2d experiment on DOT.
-All necessary files are included within this supplementary materials.
+All necessary files are included.
 
 ## 2. execute_dot.py:
-The python script file execute DOT using trained models of SAGAN which is included in this supplementary materials.
+The python script file execute DOT using trained models of SAGAN.
 To run it, please download inception model following by
-https://github.com/mattya/chainer-inception-score/tree/0c43b55b9bcba8149a9ed0b5d0bc4c5eceb49540
+>https://github.com/mattya/chainer-inception-score/tree/0c43b55b9bcba8149a9ed0b5d0bc4c5eceb49540
+
 to metric/ directory by the filename "inception_score.model".
 OPTIONS are
 ```
@@ -50,8 +51,8 @@ in the directory trained_models/
 The npz data is in public: https://drive.google.com/drive/folders/1m04Db3HbN10Tz5XHqiPpIg8kw23fkbSi
 
 In addition to it, please clone directories
->https://github.com/pfnet-research/sngan_projection/tree/master/gen_models
->https://github.com/pfnet-research/sngan_projection/tree/master/dis_models
+>https://github.com/pfnet-research/sngan_projection/tree/master/gen_models<br>
+>https://github.com/pfnet-research/sngan_projection/tree/master/dis_models<br>
 >https://github.com/pfnet-research/sngan_projection/tree/master/source
 
 to this directory.
@@ -61,5 +62,5 @@ The inception model which is explained in 2 also needed, and as a final requirem
 imagenet_inception_mean.npy
 imagenet_inception_cov.npy
 ```
-This step van be skipped just by using cifar's features by using option --data cifar of this script.
+This step van be skipped just by using cifar's features by using option `--data cifar` of this script.
 OPTIONS are same as 2.
