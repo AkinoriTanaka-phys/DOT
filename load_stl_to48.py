@@ -9,7 +9,7 @@ import cupy as xp
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('--gpu', type=int, default=0)
-    parser.add_argument('--stlpath', type=str, default="training_data/STL_96.npy")
+    parser.add_argument('--stlpath', type=str, default="training_data/STL96.npy")
     return parser.parse_args()
 
 def return_size48_array_cpu(stl_path):

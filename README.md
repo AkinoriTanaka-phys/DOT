@@ -63,7 +63,7 @@ generates files named `DCGAN_G_CIFAR_SAGAN_NonSaturating_xx.npz` and `DCGAN_D_CI
 
 For example,
 ```
-python execute_dot.py --G DCGAN_G_CIFAR_SAGAN_NonSaturating_140000.npz --D DCGAN_D_CIFAR_SAGAN_NonSaturating_140000.npz --transport dot --lr 0.01 --N_update 10 --showing_period 5 --gpu 0
+$ python execute_dot.py --G DCGAN_G_CIFAR_SAGAN_NonSaturating_140000.npz --D DCGAN_D_CIFAR_SAGAN_NonSaturating_140000.npz --transport dot --lr 0.01 --N_update 10 --showing_period 5 --gpu 0
 ```
 executes latent space DOT by using specified models in `trained_models/` by applying `10` times SGD with `lr 0.01`.
 The log of IS and FID will be written under scores/ every `showing_period` update by using 50000 samples.
