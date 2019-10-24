@@ -36,13 +36,13 @@ The following 3 executions download inception model and prepare data for calcula
 
 #### GAN training
 After the above executions, we can execute `train_GAN.py` with OPTIONS:
-> `--gpu` : GPU id<br>
-> `--net` : Neural net architecture to train. `DCGAN` or `Resnet` <br>
-> `--mode` : Neural net additional info. `SAGAN` or `SNGAN` or `WGAN-GP`<br>
-> `--data` : Training data. `CIFAR` or `STL48`<br>
-> `--objective` : Objective functions of the GAN. For `SAGAN` and `SNGAN`, we reccomend to use`NonSaturating` or `Hinge`. For `WGAN-GP`, please set `Wasserstein`<br>
-> `--iters` : Total number of the iterations. `int`<br>
-> `--report` : Number of the report step. `int`<br>
+> `--gpu` : GPU id.<br>
+> `--net` : Neural net architecture to train. `DCGAN` or `Resnet`. <br>
+> `--mode` : Neural net additional info. `SAGAN` or `SNGAN` or `WGAN-GP`. <br>
+> `--data` : Training data. `CIFAR` or `STL48`. <br>
+> `--objective` : Objective functions of the GAN. For `SAGAN` and `SNGAN`, we reccomend to use`NonSaturating` or `Hinge`. For `WGAN-GP`, please set `Wasserstein`. <br>
+> `--iters` : Total number of the iterations. `int`. <br>
+> `--report` : Number of the report step. `int`. <br>
 
 For example, 
 ```
@@ -52,13 +52,13 @@ generates files named `DCGAN_G_CIFAR_SAGAN_NonSaturating_xx.npz` and `DCGAN_D_CI
 
 ### DOT
 `execute_dot.py` execute the latent space DOT with OPTIONS
-> `--gpu` : gpu id<br>
-> `--G` : Generator filename in trained_models/<br>
-> `--D` : Discriminator filename in trained_models/<br>
-> `--transport` : dot or naive<br>
-> `--lr` : float for SGD updates<br>
-> `--N_update` : the number of SGD update of each sample by DOT<br>
-> `--showing_period` : the period for log-file under scores/<br>
+> `--gpu` : GPU id.<br>
+> `--G` : Generator filename in `trained_models/`.<br>
+> `--D` : Discriminator filename in `trained_models/`.<br>
+> `--transport` : `dot` or `naive`.<br>
+> `--lr` : float for SGD updates.<br>
+> `--N_update` : the number of SGD update of each sample by DOT.<br>
+> `--showing_period` : the period for log-file under `scores/`.<br>
 > `--k` : if 1, k_eff in DOT is fixed 1. if not specified, k_eff is calculated.<br>
 
 For example,
@@ -90,5 +90,5 @@ The inception model which is explained in 2 also needed, and as a final requirem
 metric/imagenet_inception_mean.npy
 metric/imagenet_inception_cov.npy
 ```
-This step van be skipped just by using cifar's features by using option `--data CIFAR` of this script.
+This step can be skipped just by using cifar's features by using option `--data CIFAR` of this script.
 OPTIONS are same as 2.
