@@ -43,6 +43,7 @@ After the above executions, we can execute `train_GAN.py` with OPTIONS:
 > `--objective` : Objective functions of the GAN. For `SAGAN` and `SNGAN`, we reccomend to use`NonSaturating` or `Hinge`. For `WGAN-GP`, please set `Wasserstein`<br>
 > `--iters` : Total number of the iterations. `int`<br>
 > `--report` : Number of the report step. `int`<br>
+
 For example, 
 ```
 $ python train_GAN.py --net DCGAN --data CIFAR --mode SAGAN --objective NonSaturating --iters 150000 --report 10000 --gpu 0
@@ -59,6 +60,7 @@ generates files named `DCGAN_G_CIFAR_SAGAN_NonSaturating_xx.npz` and `DCGAN_D_CI
 > `--N_update` : the number of SGD update of each sample by DOT<br>
 > `--showing_period` : the period for log-file under scores/<br>
 > `--k` : if 1, k_eff in DOT is fixed 1. if not specified, k_eff is calculated.<br>
+
 For example,
 ```
 python execute_dot.py --G DCGAN_G_CIFAR_SAGAN_NonSaturating_140000.npz --D DCGAN_D_CIFAR_SAGAN_NonSaturating_140000.npz --transport dot --lr 0.01 --N_update 10 --showing_period 5 --gpu 0
@@ -73,7 +75,7 @@ To run it, we need
 ResNetGenerator_850000.npz
 SNResNetProjectionDiscriminator_850000.npz
 ```
-in the directory trained_models/
+in the directory `trained_models/`
 The npz data is in public: https://drive.google.com/drive/folders/1m04Db3HbN10Tz5XHqiPpIg8kw23fkbSi
 
 In addition to it, please clone directories
@@ -85,8 +87,8 @@ to this directory.
 
 The inception model which is explained in 2 also needed, and as a final requirement, we need mean and cov in inception model 2,048 feature space of the imagenet dataset. After calculating it, save them to
 ```
-imagenet_inception_mean.npy
-imagenet_inception_cov.npy
+metric/imagenet_inception_mean.npy
+metric/imagenet_inception_cov.npy
 ```
-This step van be skipped just by using cifar's features by using option `--data cifar` of this script.
+This step van be skipped just by using cifar's features by using option `--data CIFAR` of this script.
 OPTIONS are same as 2.
