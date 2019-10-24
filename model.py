@@ -11,8 +11,7 @@ from snd.sn_deconvolution_2d import SNDeconvolution2D
 
 from sa.attention import Self_Attn
 
-
-#### models for 2d data
+### for 2d
 class Generator(chainer.Chain):
     def __init__(self, n_hidden=2, noize='uni', non_linear=None, final=None):
         self.final = final
@@ -22,26 +21,30 @@ class Generator(chainer.Chain):
         self.noize = noize
         with self.init_scope():
             init = chainer.initializers.HeNormal(scale=0.8)
-            self.l0 = L.Linear(self.n_hidden, 256, initialW=init)
-            self.l1 = L.Linear(None, 256, initialW=init)
-            self.l2 = L.Linear(None, 256, initialW=init)
+            self.l0 = L.Linear(self.n_hidden, 128, initialW=init)
+            self.l1 = L.Linear(None, 128, initialW=init)
+            self.l2 = L.Linear(None, 128, initialW=init)
             self.l4 = L.Linear(None, 2, initialW=init)
 
     def make_hidden(self, batchsize):
-        return xp.random.uniform(-1, 1, (batchsize, self.n_hidden)).astype(xp.float32)
+        if self.noize == 'uni':
+            return xp.random.uniform(-1, 1, (batchsize, self.n_hidden)).astype(xp.float32)
+        else:
+            return xp.random.normal(0, 1, (batchsize, self.n_hidden)).astype(xp.float32)
 
     def __call__(self, z, train=True):
         h = self.non_linear(self.l0(z))
         h1 = self.non_linear(self.l1(h))
-        h = self.non_linear(self.l2(h1)) #+ h1
+        h = self.non_linear(self.l2(h1)) + h1
         h = self.final(self.l4(h))
         h = F.reshape(h, (len(z), 2))
         return h
-
+    
     def sampling(self, batchsize):
         z = self.make_hidden(batchsize)
         return self(z)
 
+    
 class Discriminator(chainer.Chain):
     def __init__(self, non_linear=None, final=None):
         self.non_linear = non_linear
@@ -61,8 +64,8 @@ class Discriminator(chainer.Chain):
         h = self.final(self.l4(h))
         return h
 
-#### for cifar
 
+#### for images
 #### https://github.com/pfnet-research/chainer-gan-lib/blob/master/common/net.py
 class DCGANGenerator(chainer.Chain):
     def __init__(self, n_hidden=128, bottom_width=4, ch=512, wscale=0.02,
@@ -141,7 +144,9 @@ class SADCGANGenerator(chainer.Chain):
             self.dc2 = SNDeconvolution2D(ch // 2, ch // 4, 4, 2, 1, initialW=w)
             self.sa1 = Self_Attn(ch//4)
             self.dc3 = SNDeconvolution2D(ch // 4, ch // 8, 4, 2, 1, initialW=w)
+            #self.sa1 = Self_Attn(ch//8)
             self.dc4 = SNDeconvolution2D(ch // 8, 3, 3, 1, 1, initialW=w)
+            #self.sa1 = Self_Attn(3)
             if self.use_bn:
                 self.bn0 = L.BatchNormalization(bottom_width * bottom_width * ch)
                 self.bn1 = L.BatchNormalization(ch // 2)
@@ -167,6 +172,7 @@ class SADCGANGenerator(chainer.Chain):
             h,_ = self.sa1(h)
             h = self.hidden_activation(self.dc3(h))
             h = self.dc4(h)
+            #h, _ = self.sa1(h)
             x = self.output_activation(h)
         else:
             h = F.reshape(self.hidden_activation(self.bn0(self.l0(z))),
@@ -176,6 +182,7 @@ class SADCGANGenerator(chainer.Chain):
             h, _ = self.sa1(h)
             h = self.hidden_activation(self.bn3(self.dc3(h)))
             h = self.dc4(h)
+            #h, _ = self.sa1(h)
             x = self.output_activation(h)
         return x
 
@@ -183,6 +190,30 @@ class SADCGANGenerator(chainer.Chain):
         z = self.make_hidden(batchsize)
         return self(z)
 
+class WGANDiscriminator(chainer.Chain):
+    def __init__(self, bottom_width=4, ch=512, wscale=0.02, output_dim=1):
+        w = chainer.initializers.Normal(wscale)
+        super(WGANDiscriminator, self).__init__()
+        with self.init_scope():
+            self.c0 = L.Convolution2D(3, ch // 8, 3, 1, 1, initialW=w)
+            self.c1 = L.Convolution2D(ch // 8, ch // 4, 4, 2, 1, initialW=w)
+            self.c1_0 = L.Convolution2D(ch // 4, ch // 4, 3, 1, 1, initialW=w)
+            self.c2 = L.Convolution2D(ch // 4, ch // 2, 4, 2, 1, initialW=w)
+            self.c2_0 = L.Convolution2D(ch // 2, ch // 2, 3, 1, 1, initialW=w)
+            self.c3 = L.Convolution2D(ch // 2, ch // 1, 4, 2, 1, initialW=w)
+            self.c3_0 = L.Convolution2D(ch // 1, ch // 1, 3, 1, 1, initialW=w)
+            self.l4 = L.Linear(bottom_width * bottom_width * ch, output_dim, initialW=w)
+
+    def __call__(self, x):
+        self.x = x
+        self.h0 = F.leaky_relu(self.c0(self.x))
+        self.h1 = F.leaky_relu(self.c1(self.h0))
+        self.h2 = F.leaky_relu(self.c1_0(self.h1))
+        self.h3 = F.leaky_relu(self.c2(self.h2))
+        self.h4 = F.leaky_relu(self.c2_0(self.h3))
+        self.h5 = F.leaky_relu(self.c3(self.h4))
+        self.h6 = F.leaky_relu(self.c3_0(self.h5))
+        return self.l4(self.h6)
 
 class SNDCGANDiscriminator(chainer.Chain):
     def __init__(self, bottom_width=4, ch=512, wscale=0.02, output_dim=1):
@@ -319,47 +350,6 @@ class ResnetGenerator(chainer.Chain):
         h = self.r2(h)
         h = self.bn2(F.relu(h))
         h = F.tanh(self.c3(h))
-        return h
-
-    def sampling(self, batchsize):
-        z = self.make_hidden(batchsize)
-        return self(z)
-
-class ResnetGenerator_stl(chainer.Chain):
-    def __init__(self, n_hidden=128, bottom_width=6, z_distribution="normal", wscale=0.02):
-        self.n_hidden = n_hidden
-        self.bottom_width = bottom_width
-        self.z_distribution = z_distribution
-        super(ResnetGenerator_stl, self).__init__()
-        with self.init_scope():
-            w = chainer.initializers.Normal(wscale)
-            self.l0 = L.Linear(n_hidden, 512 * bottom_width * bottom_width)
-            self.r0 = UpResBlock(512, 256)
-            self.r1 = UpResBlock(256, 128)
-            self.r2 = UpResBlock(128, 64)
-            #self.r3 = UpResBlock(64)
-            self.bn2 = L.BatchNormalization(64)
-            self.c3 = L.Convolution2D(64, 3, 3, 1, 1, initialW=w)
-
-    def make_hidden(self, batchsize):
-        if self.z_distribution == "normal":
-            return xp.random.randn(batchsize, self.n_hidden, 1, 1) \
-                .astype(xp.float32)
-        elif self.z_distribution == "uniform":
-            return xp.random.uniform(-1, 1, (batchsize, self.n_hidden, 1, 1)) \
-                .astype(xp.float32)
-        else:
-            raise Exception("unknown z distribution: %s" % self.z_distribution)
-
-    def __call__(self, x):
-        h = F.reshape(F.relu(self.l0(x)), (x.shape[0], 512, self.bottom_width, self.bottom_width))
-        h = self.r0(h)
-        h = self.r1(h)
-        h = self.r2(h)
-        #h = self.r3(h)
-        h = self.bn2(F.relu(h))
-        h = F.tanh(self.c3(h))
-        #print(h.shape)
         return h
 
     def sampling(self, batchsize):
@@ -559,12 +549,9 @@ class ResnetDiscriminator(chainer.Chain):
         h = self.r1(h)
         h = self.r2(h)
         h = self.r3(h)
-        # modified 2/14
-        #h = F.average_pooling_2d(h, self.bottom_width)
         h = F.relu(h)
         h = self.l4(h)
-        return h#self.l4(F.relu(self.h4))
-
+        return h
 
 class SNResnetDiscriminator(chainer.Chain):
     def __init__(self, bottom_width=8, ch=128, wscale=0.02, output_dim=1):
@@ -586,7 +573,6 @@ class SNResnetDiscriminator(chainer.Chain):
         self.h3 = self.r2(self.h2)
         self.h4 = self.r3(self.h3)
         return self.l4(F.relu(self.h4))
-
 
 class SAResnetDiscriminator(chainer.Chain):
     def __init__(self, bottom_width=8, ch=128, wscale=0.02, output_dim=1):
