@@ -21,30 +21,26 @@ class Generator(chainer.Chain):
         self.noize = noize
         with self.init_scope():
             init = chainer.initializers.HeNormal(scale=0.8)
-            self.l0 = L.Linear(self.n_hidden, 128, initialW=init)
-            self.l1 = L.Linear(None, 128, initialW=init)
-            self.l2 = L.Linear(None, 128, initialW=init)
+            self.l0 = L.Linear(self.n_hidden, 256, initialW=init)
+            self.l1 = L.Linear(None, 256, initialW=init)
+            self.l2 = L.Linear(None, 256, initialW=init)
             self.l4 = L.Linear(None, 2, initialW=init)
 
     def make_hidden(self, batchsize):
-        if self.noize == 'uni':
-            return xp.random.uniform(-1, 1, (batchsize, self.n_hidden)).astype(xp.float32)
-        else:
-            return xp.random.normal(0, 1, (batchsize, self.n_hidden)).astype(xp.float32)
+        return xp.random.uniform(-1, 1, (batchsize, self.n_hidden)).astype(xp.float32)
 
     def __call__(self, z, train=True):
         h = self.non_linear(self.l0(z))
         h1 = self.non_linear(self.l1(h))
-        h = self.non_linear(self.l2(h1)) + h1
+        h = self.non_linear(self.l2(h1)) #+ h1
         h = self.final(self.l4(h))
         h = F.reshape(h, (len(z), 2))
         return h
-    
+
     def sampling(self, batchsize):
         z = self.make_hidden(batchsize)
         return self(z)
 
-    
 class Discriminator(chainer.Chain):
     def __init__(self, non_linear=None, final=None):
         self.non_linear = non_linear
@@ -63,7 +59,6 @@ class Discriminator(chainer.Chain):
         h = self.non_linear(self.l3(h))
         h = self.final(self.l4(h))
         return h
-
 
 #### for images
 #### https://github.com/pfnet-research/chainer-gan-lib/blob/master/common/net.py
