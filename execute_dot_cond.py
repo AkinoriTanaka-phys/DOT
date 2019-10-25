@@ -47,7 +47,6 @@ def parse_args():
 
 ###
 def calc_scores(G, D, data, evmodel, dot_mode, N_update, batchsize=50, n_img=50000, k=1.0, lr=0.1):
-    """ dot_mode = [target, latent, bare] """
     for i in range(0, n_img, batchsize):
         im = DOT_cond.make_image(G, D, batchsize, N_update=N_update, mode=dot_mode, k=k, lr=lr, optmode=args.optmode)
         im = np.asarray(np.clip(im * 127.5 + 127.5, 0.0, 255.0), dtype=np.float32)

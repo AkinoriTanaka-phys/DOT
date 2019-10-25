@@ -1,7 +1,6 @@
 import argparse
 import numpy as np
 import scipy
-import re
 import os
 from datetime import datetime
 
@@ -21,9 +20,10 @@ import math
 
 import cupy as xp
 from model import *
-import DOT 
+import MH
 
 from train_GAN import returnG, returnD
+from execute_dot import load_GD
 
 def parse_args():
     parser = argparse.ArgumentParser()
@@ -32,71 +32,51 @@ def parse_args():
     parser.add_argument('--evmodel', type=str, default='metric/inception_score.model')
     parser.add_argument('--G', type=str, default='trained_models/xxxx')
     parser.add_argument('--D', type=str, default='trained_models/xxxx')
-    parser.add_argument('--transport', type=str, default='dot')
-    parser.add_argument('--optmode', type=str, default='sgd')
+    parser.add_argument('--data', type=str, default='CIFAR')
     parser.add_argument('--N_update', type=int, default=100)
     parser.add_argument('--showing_period', type=int, default=10)
-    parser.add_argument('--lr', type=float, default=10**(-2))
-    parser.add_argument('--k', type=int, default=None)
+    parser.add_argument('--calib', type=str, default='True')
+    parser.add_argument('--initdata', type=str, default='True')
     return parser.parse_args()
 
 ###
-def calc_scores(G, D, data, evmodel, transport, N_update, batchsize=100, n_img=50000, k=None, lr=0.1, optmode='sgd'):
+def calc_scores(G, D, data, evmodel, C, N_update, batchsize=50, n_img=50000, init_data=False):
     for i in range(0, n_img, batchsize):
-        im = DOT.make_image(G, D, batchsize, N_update=N_update, ot=True, mode=transport, k=k, lr=lr, optmode=optmode)
+        if init_data == True:
+            x_ini = (xp.load("training_data/{}.npy".format(data))).astype(xp.float32)*2 - 1
+            xp.random.shuffle(x_ini)
+            x_ini = x_ini[:batchsize]
+        else:
+            x_ini = None
+        im, acceptance_rate = MH.make_image2(G, D, batchsize, C, N_update=N_update, initial=x_ini)
         im = np.asarray(np.clip(im * 127.5 + 127.5, 0.0, 255.0), dtype=np.float32)
         if i==0:
             ims = im
+            accs = [acceptance_rate]
         else:
             ims = np.concatenate((ims, im))
+            accs.append(acceptance_rate)
+
+    acceptance = np.mean(accs)
 
     if args.samples > 0:
         ims = ims[:args.samples]
-
     fid = calc_FID(ims, evmodel, data=data)
     with chainer.no_backprop_mode(), chainer.using_config('train', False):
         mean, std = inception_score(evmodel, ims)
-    return fid, mean, std
+    return fid, mean, std, acceptance
 
-def load_GD(Gfilename, Dfilename):
-    Gnet, _, Gdata, Gmode, _, _ = re.split(r'[_]', Gfilename)
-    Dnet, _, Ddata, Dmode, _, _ = re.split(r'[_]', Dfilename)
-    try:
-        if Gdata==Ddata:
-            pass
-        else:
-            raise Exception
-    except Exception:
-        print("Domain(CIFAR/STL48) should be same in G and D.")
-
-    if Gdata=='STL48':
-        bw = 6
-        n=1
-    elif Gdata=='CIFAR':
-        bw = 4
-        n=2
-    G = returnG(bw, n, Gmode, Gnet)
-    D = returnD(bw, Dmode, Dnet)
-
-    serializers.load_npz("trained_models/{}".format(Gfilename), G)
-    serializers.load_npz("trained_models/{}".format(Dfilename), D)
-    return G, D, Gdata
-
-
-def main(args, G, D, data, evmodel, k, transport, N_update, showing_period):
-    lr = float(args.lr)
-    filename="uncond_" + datetime.now().strftime("%Y_%m_%d_%H%M%S")+".txt"
+def main(args, G, D, data, evmodel, C, N_update, showing_period, init_data):
+    filename="MH_" + datetime.now().strftime("%Y_%m_%d_%H%M%S")+".txt"
     with open("scores/{}".format(filename), "w") as fileobj:
         fileobj.write("{}\n".format(args.G))
         fileobj.write("{}\n".format(args.D))
-        fileobj.write("DOTmode:{}\n".format(transport))
-        fileobj.write("lr:{}\n".format(args.lr))
-        fileobj.write("optimizer:{}\n".format(args.optmode))
-        fileobj.write("k:{}\n\n".format(cuda.to_cpu(k)))
-        
+        fileobj.write("Calibration:{}\n".format(C!=None))
+        fileobj.write("initialize by real data:{}\n\n".format(init_data))
         for n_update in range(0, N_update+1, showing_period):
-            fid, inception_mean, inception_std = calc_scores(G, D, data, evmodel, transport, n_update, k=k, lr=args.lr, optmode=args.optmode)
+            fid, inception_mean, inception_std, acceptance = calc_scores(G, D, data, evmodel, C, n_update, init_data=init_data)
             fileobj.write("n_update:{}\n".format(n_update))
+            fileobj.write("acceptance rate:{}\n".format(acceptance))
             fileobj.write("IS:{}pm{}\n".format(inception_mean, inception_std))
             fileobj.write("FID:{}\n\n".format(fid))
 
@@ -114,8 +94,8 @@ if __name__ == '__main__':
         G.to_gpu()
         D.to_gpu()
     G, D = DOT.thermalize_spectral_norm(G, D)
-    if args.k==None:
-        k = DOT.eff_k(G, D)
-    else:
-        k = args.k*xp.ones([1])
-    main(args, G, D, data, evmodel, k, transport=args.transport, N_update=args.N_update, showing_period=args.showing_period)
+    C = None
+    if args.calib=='True':
+        C = MH.Calibrator(G, D, fitting_batchsize=1000, data=data)
+
+    main(args, G, D, data, evmodel, C, N_update=args.N_update, showing_period=args.showing_period, init_data=(args.initdata=='True'))
