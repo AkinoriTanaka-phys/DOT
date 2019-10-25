@@ -1,5 +1,5 @@
 # DOT
-code submission to NeurIPS2019 of the paper "Discriminator optimal transport".
+code submission to NeurIPS2019 of the paper "Discriminator optimal transport"([arXiv](http://arxiv.org/abs/1910.06832)).
 
 # Environment
 DL framework for python is `chainer`.
@@ -29,7 +29,6 @@ $ python load_stl_to48.py --gpu 0
 $ python download.py --outfile metric/inception_score.model
 $ python get_mean_cov_2048featurespace.py --data CIFAR --gpu 0
 $ python get_mean_cov_2048featurespace.py --data STL48 --gpu 0
-$ mkdir scores
 ```
 The first 3 executions download and prepare `training_data/CIFAR.npy`, `training_data/STL96.npy` and `training_data/STL48.npy`.
 The following 3 executions download inception model and prepare data for calculating FID.
@@ -56,6 +55,7 @@ generates files named `DCGAN_G_CIFAR_SAGAN_NonSaturating_xx.npz` and `DCGAN_D_CI
 > `--G` : Generator filename in `trained_models/`.<br>
 > `--D` : Discriminator filename in `trained_models/`.<br>
 > `--transport` : `dot` or `naive`.<br>
+> `--optmode` : `adam` or `sgd`.<br>
 > `--lr` : float for SGD updates.<br>
 > `--N_update` : the number of SGD update of each sample by DOT.<br>
 > `--showing_period` : the period for log-file under `scores/`.<br>
@@ -63,9 +63,9 @@ generates files named `DCGAN_G_CIFAR_SAGAN_NonSaturating_xx.npz` and `DCGAN_D_CI
 
 For example,
 ```
-$ python execute_dot.py --G DCGAN_G_CIFAR_SAGAN_NonSaturating_140000.npz --D DCGAN_D_CIFAR_SAGAN_NonSaturating_140000.npz --transport dot --lr 0.01 --N_update 10 --showing_period 5 --gpu 0
+$ python execute_dot.py --G DCGAN_G_CIFAR_SAGAN_NonSaturating_140000.npz --D DCGAN_D_CIFAR_SAGAN_NonSaturating_140000.npz --transport dot --optmode sgd --lr 0.01 --N_update 10 --showing_period 5 --gpu 0
 ```
-executes latent space DOT by using specified models in `trained_models/` by applying `10` times SGD with `lr 0.01`.
+executes latent space DOT by using specified models in `trained_models/` by applying `10` times `sgd` with `lr 0.01`.
 The log of IS and FID will be written under scores/ every `showing_period` update by using 50000 samples.
 
 ## 3. `execute_dot_cond.py`:
