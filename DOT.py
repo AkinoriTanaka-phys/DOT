@@ -135,12 +135,15 @@ def discriminator_optimal_transport_from(y_or_z_xp, transporter, N_update=10):
     for i in range(N_update):            
         transporter.step()
 
-def make_image(G, D, batchsize, N_update=100, ot=True, mode='dot', k=1, lr=0.05):
+def make_image(G, D, batchsize, N_update=100, ot=True, mode='dot', k=1, lr=0.05, optmode='sgd'):
     z = G.make_hidden(batchsize)
     with chainer.using_config('train', False):
         if ot:
             z_xp = z
-            Opt = chainer.optimizers.SGD(lr)#, beta1=0.0, beta2=0.9)
+            if optmode=='sgd':
+                Opt = chainer.optimizers.SGD(lr)
+            elif optmode=='adam':
+                Opt = chainer.optimizers.Adam(lr, beta1=0.0, beta2=0.9)
             T = Transporter_in_latent(G, D, k, Opt, z_xp, mode=mode)#, sign=True)
             discriminator_optimal_transport_from(z_xp, T, N_update)
             tz_y = T.get_z_va().data

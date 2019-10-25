@@ -2,6 +2,7 @@ import argparse
 import numpy as np
 import scipy
 import re
+import os
 from datetime import datetime
 
 import chainer
@@ -32,6 +33,7 @@ def parse_args():
     parser.add_argument('--G', type=str, default='trained_models/xxxx')
     parser.add_argument('--D', type=str, default='trained_models/xxxx')
     parser.add_argument('--transport', type=str, default='dot')
+    parser.add_argument('--optmode', type=str, default='sgd')
     parser.add_argument('--N_update', type=int, default=100)
     parser.add_argument('--showing_period', type=int, default=10)
     parser.add_argument('--lr', type=float, default=10**(-2))
@@ -39,10 +41,10 @@ def parse_args():
     return parser.parse_args()
 
 ###
-def calc_scores(G, D, data, evmodel, transport, N_update, batchsize=100, n_img=50000, k=None, lr=0.1):
+def calc_scores(G, D, data, evmodel, transport, N_update, batchsize=100, n_img=50000, k=None, lr=0.1, optmode='sgd'):
     """ dot_mode = [target, latent, bare] """
     for i in range(0, n_img, batchsize):
-        im = DOT.make_image(G, D, batchsize, N_update=N_update, ot=True, mode=transport, k=k, lr=lr)
+        im = DOT.make_image(G, D, batchsize, N_update=N_update, ot=True, mode=transport, k=k, lr=lr, optmode=optmode)
         im = np.asarray(np.clip(im * 127.5 + 127.5, 0.0, 255.0), dtype=np.float32)
         if i==0:
             ims = im
@@ -90,15 +92,20 @@ def main(args, G, D, data, evmodel, k, transport, N_update, showing_period):
         fileobj.write("{}\n".format(args.D))
         fileobj.write("DOTmode:{}\n".format(transport))
         fileobj.write("lr:{}\n".format(args.lr))
+        fileobj.write("optimizer:{}\n".format(args.optmode))
         fileobj.write("k:{}\n\n".format(cuda.to_cpu(k)))
+        
         for n_update in range(0, N_update+1, showing_period):
-            fid, inception_mean, inception_std = calc_scores(G, D, data, evmodel, transport, n_update, k=k, lr=args.lr)
+            fid, inception_mean, inception_std = calc_scores(G, D, data, evmodel, transport, n_update, k=k, lr=args.lr, optmode=args.optmode)
             fileobj.write("n_update:{}\n".format(n_update))
             fileobj.write("IS:{}pm{}\n".format(inception_mean, inception_std))
             fileobj.write("FID:{}\n\n".format(fid))
 
 if __name__ == '__main__':
     args = parse_args()
+    if not os.path.exists("scores"):
+        os.mkdir("scores")
+
     evmodel = Inception()
     serializers.load_hdf5('metric/inception_score.model', evmodel)
     G, D, data = load_GD(args.G, args.D)
