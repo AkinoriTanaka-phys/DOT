@@ -36,7 +36,7 @@ $ python get_mean_cov_2048featurespace.py --data STL48 --gpu 0 # to metric/STL48
 > `--gpu` : GPU id.<br>
 > `--net` : Neural net architecture to train. `DCGAN` or `Resnet`. <br>
 > `--mode` : Neural net additional info. `SAGAN` or `SNGAN` or `WGAN-GP`. <br>
-> `--objective` : For `SAGAN` and `SNGAN`, we reccomend to use`NonSaturating` or `Hinge`. For `WGAN-GP`, please set `Wasserstein`. <br>
+> `--objective` : For `SAGAN` and `SNGAN`, please use`NonSaturating` or `Hinge`. For `WGAN-GP`, please set `Wasserstein`. <br>
 > `--data` : Training data. `CIFAR` or `STL48`. <br>
 > `--iters` : Total number of the iterations. `int`. <br>
 > `--report` : Number of the report step. `int`. <br>
@@ -103,7 +103,7 @@ OPTIONS are same as 2-2, and the log-file will be saved to `scores/cond_year_mon
 
 For example,
 ```
-python execute_mh.py --gpu 0 --G DCGAN_G_STL48_SAGAN_NonSaturating_70000.npz --D DCGAN_D_STL48_SAGAN_NonSaturating_70000.npz --calib True --initdata True --N_update 10 --showing_period 5
+python execute_mh.py --gpu 0 --G DCGAN_G_STL48_SAGAN_NonSaturating_140000.npz --D DCGAN_D_STL48_SAGAN_NonSaturating_140000.npz --calib True --initdata True --N_update 10 --showing_period 5
 ```
-executes MH-GAN sampling by using the specified models in `trained_models/` by using length of the Markov chain=`0`, `5`, `10` initialized by data itself, with calibrated discriminator.
+executes MH-GAN sampling by using the specified models in `trained_models/` with Markov chain length = `0`, `5`, `10` initialized by data itself, with calibrated discriminator.
 The log of IS and FID will be written under `scores/MH_year_month_day_time.txt`.
