@@ -1,3 +1,4 @@
+# from https://github.com/pfnet-research/chainer-gan-lib/tree/master/common/sn
 import chainer
 from chainer import cuda
 from chainer.functions.math import sum

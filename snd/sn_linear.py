@@ -1,3 +1,4 @@
+# from https://github.com/pfnet-research/chainer-gan-lib/tree/master/common/sn
 import math
 import numpy as np
 import chainer
