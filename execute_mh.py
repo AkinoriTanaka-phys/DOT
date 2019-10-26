@@ -32,7 +32,6 @@ def parse_args():
     parser.add_argument('--evmodel', type=str, default='metric/inception_score.model')
     parser.add_argument('--G', type=str, default='trained_models/xxxx')
     parser.add_argument('--D', type=str, default='trained_models/xxxx')
-    parser.add_argument('--data', type=str, default='CIFAR')
     parser.add_argument('--N_update', type=int, default=100)
     parser.add_argument('--showing_period', type=int, default=10)
     parser.add_argument('--calib', type=str, default='True')
