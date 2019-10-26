@@ -18,7 +18,7 @@ All necessary files are included.
 
 ## 2. `execute_dot.py`:
 The python script file execute latent space DOT for CIFAR-10 and STL-10 using trained models.
-### preliminary
+### 2-1. preliminary
 To run it, we need to prepare trained models by `train_GAN.py`.
 #### data download for the training:
 Please follow the next steps:
@@ -49,7 +49,7 @@ $ python train_GAN.py --net DCGAN --data CIFAR --mode SAGAN --objective NonSatur
 ```
 generates files named `DCGAN_G_CIFAR_SAGAN_NonSaturating_xx.npz` and `DCGAN_D_CIFAR_SAGAN_NonSaturating_xx.npz` to `trained_models/` if the inception score in each `10000` iteration exceeds the best score in the updating history. The number `xx` means the number of iteration of the saved models.
 
-### DOT
+### 2-2. DOT
 `execute_dot.py` execute the latent space DOT with OPTIONS
 > `--gpu` : GPU id.<br>
 > `--G` : Generator filename in `trained_models/`.<br>
@@ -91,4 +91,4 @@ metric/imagenet_inception_mean.npy
 metric/imagenet_inception_cov.npy
 ```
 This step can be skipped just by using cifar's features by using option `--data CIFAR` of this script.
-OPTIONS are same as 2.
+OPTIONS are same as 2-2.

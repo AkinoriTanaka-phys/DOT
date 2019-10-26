@@ -112,4 +112,4 @@ def make_image2(G, D, batchsize, C=None, N_update=640, initial=None):
             break
         
     x_accepted = x_accepted[:batchsize]
-    return x_accepted, 1
+    return x_accepted, np.mean(acceptance_rate_seq)
