@@ -39,7 +39,6 @@ def parse_args():
     parser.add_argument('--initdata', type=str, default='True')
     return parser.parse_args()
 
-###
 def calc_scores(G, D, data, evmodel, C, N_update, batchsize=50, n_img=50000, init_data=False):
     for i in range(0, n_img, batchsize):
         if init_data == True:
@@ -56,9 +55,7 @@ def calc_scores(G, D, data, evmodel, C, N_update, batchsize=50, n_img=50000, ini
         else:
             ims = np.concatenate((ims, im))
             accs.append(acceptance_rate)
-
     acceptance = np.mean(accs)
-
     if args.samples > 0:
         ims = ims[:args.samples]
     fid = calc_FID(ims, evmodel, data=data)
@@ -84,7 +81,6 @@ if __name__ == '__main__':
     args = parse_args()
     if not os.path.exists("scores"):
         os.mkdir("scores")
-
     evmodel = Inception()
     serializers.load_hdf5('metric/inception_score.model', evmodel)
     G, D, data = load_GD(args.G, args.D)
@@ -97,5 +93,4 @@ if __name__ == '__main__':
     C = None
     if args.calib=='True':
         C = MH.Calibrator(G, D, fitting_batchsize=1000, data=data)
-
     main(args, G, D, data, evmodel, C, N_update=args.N_update, showing_period=args.showing_period, init_data=(args.initdata=='True'))

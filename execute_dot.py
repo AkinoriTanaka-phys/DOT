@@ -93,7 +93,6 @@ def main(args, G, D, data, evmodel, k, transport, N_update, showing_period):
         fileobj.write("lr:{}\n".format(args.lr))
         fileobj.write("optimizer:{}\n".format(args.optmode))
         fileobj.write("k:{}\n\n".format(cuda.to_cpu(k)))
-        
         for n_update in range(0, N_update+1, showing_period):
             fid, inception_mean, inception_std = calc_scores(G, D, data, evmodel, transport, n_update, k=k, lr=args.lr, optmode=args.optmode)
             fileobj.write("n_update:{}\n".format(n_update))
@@ -104,7 +103,6 @@ if __name__ == '__main__':
     args = parse_args()
     if not os.path.exists("scores"):
         os.mkdir("scores")
-
     evmodel = Inception()
     serializers.load_hdf5('metric/inception_score.model', evmodel)
     G, D, data = load_GD(args.G, args.D)

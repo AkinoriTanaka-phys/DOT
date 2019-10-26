@@ -32,7 +32,7 @@ class Generator(chainer.Chain):
     def __call__(self, z, train=True):
         h = self.non_linear(self.l0(z))
         h1 = self.non_linear(self.l1(h))
-        h = self.non_linear(self.l2(h1)) #+ h1
+        h = self.non_linear(self.l2(h1))
         h = self.final(self.l4(h))
         h = F.reshape(h, (len(z), 2))
         return h
@@ -139,9 +139,7 @@ class SADCGANGenerator(chainer.Chain):
             self.dc2 = SNDeconvolution2D(ch // 2, ch // 4, 4, 2, 1, initialW=w)
             self.sa1 = Self_Attn(ch//4)
             self.dc3 = SNDeconvolution2D(ch // 4, ch // 8, 4, 2, 1, initialW=w)
-            #self.sa1 = Self_Attn(ch//8)
             self.dc4 = SNDeconvolution2D(ch // 8, 3, 3, 1, 1, initialW=w)
-            #self.sa1 = Self_Attn(3)
             if self.use_bn:
                 self.bn0 = L.BatchNormalization(bottom_width * bottom_width * ch)
                 self.bn1 = L.BatchNormalization(ch // 2)
@@ -167,7 +165,6 @@ class SADCGANGenerator(chainer.Chain):
             h,_ = self.sa1(h)
             h = self.hidden_activation(self.dc3(h))
             h = self.dc4(h)
-            #h, _ = self.sa1(h)
             x = self.output_activation(h)
         else:
             h = F.reshape(self.hidden_activation(self.bn0(self.l0(z))),
@@ -177,7 +174,6 @@ class SADCGANGenerator(chainer.Chain):
             h, _ = self.sa1(h)
             h = self.hidden_activation(self.bn3(self.dc3(h)))
             h = self.dc4(h)
-            #h, _ = self.sa1(h)
             x = self.output_activation(h)
         return x
 
@@ -239,9 +235,7 @@ class SADCGANDiscriminator(chainer.Chain):
         w = chainer.initializers.Normal(wscale)
         super(SADCGANDiscriminator, self).__init__()
         with self.init_scope():
-            #self.sa1 = Self_Attn(3)
             self.c0_0 = SNConvolution2D(3, ch // 8, 3, 1, 1, initialW=w)
-            #self.sa1  = Self_Attn(ch//8)
             self.c0_1 = SNConvolution2D(ch // 8, ch // 4, 4, 2, 1, initialW=w)
             self.sa1 = Self_Attn(ch//4)
             self.c1_0 = SNConvolution2D(ch // 4, ch // 4, 3, 1, 1, initialW=w)
@@ -252,9 +246,7 @@ class SADCGANDiscriminator(chainer.Chain):
             self.l4 = SNLinear(bottom_width * bottom_width * ch, output_dim, initialW=w)
 
     def __call__(self, x):
-        #h, _ = self.sa1(x)
         h = F.leaky_relu(self.c0_0(x))
-        #h, _ = self.sa1(h)
         h = F.leaky_relu(self.c0_1(h))
         h,_ = self.sa1(h)
         h = F.leaky_relu(self.c1_0(h))
@@ -591,4 +583,3 @@ class SAResnetDiscriminator(chainer.Chain):
         self.h4 = self.r3(self.h3)
         self.h5,_ = self.sa1(self.h4) 
         return self.l4(F.relu(self.h5))
-

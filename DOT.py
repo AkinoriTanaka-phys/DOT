@@ -4,13 +4,8 @@ from chainer import Link, Chain, ChainList
 import chainer.functions as F
 import chainer.links as L
 
-#import numpy as xp
 from chainer import cuda
-#import numpy as xp
-gpu_device = 0
-cuda.get_device(gpu_device).use()
 import cupy as xp
-
 
 def l2_norm(x):
     return F.sqrt(F.batch_l2_norm_squared(x))
@@ -27,9 +22,7 @@ def eff_k(G, D, trial=100):
         f2 = D(x2)
         nu =  distance(f2 - f1)
         de_l = distance(z2 - z1)
-        #de_L = distance(x2 - x1)
-        #print(denominator.shape)
-        return F.max(nu/de_l).data#, F.max(nu/de_L).data
+        return F.max(nu/de_l).data
 
 def eff_K(G, D, trial=100):
     with chainer.using_config('train', False):
@@ -40,9 +33,7 @@ def eff_K(G, D, trial=100):
         x2 = G(z2)
         f2 = D(x2)
         nu =  distance(f2 - f1)
-        #de_l = distance(z2 - z1)
         de_L = distance(x2 - x1)
-        #print(denominator.shape)
         return F.max(nu/de_L).data
 
 class Transporter_in_target():
@@ -64,7 +55,7 @@ class Transporter_in_target():
     
     def H_y(self, x):
         if self.mode=='dot':
-            return - self.D(x)/self.lc + F.reshape(distance(x - self.y +0.001),self.D(x).shape) 
+            return - self.D(x)/self.lc + F.reshape(distance(x - self.y + 0.001),self.D(x).shape) 
         else:
             return - self.D(x)/self.lc
         
@@ -77,7 +68,6 @@ class Transporter_in_target():
         self.opt.update()
         self.opt.target.W.data = xp.clip(self.opt.target.W.data, -2, 2)
         
-###
 class Transporter_in_latent():
     def __init__(self, G, D, k, opt, zy_xp, mode):
         self.G = G
@@ -101,7 +91,7 @@ class Transporter_in_latent():
         x = self.G(z)
         with chainer.using_config('train', False):
             if self.mode=='dot':
-                return - self.D(x)/self.lc + F.reshape(distance(z - Variable(self.zy)+0.001), self.D(x).shape) 
+                return - self.D(x)/self.lc + F.reshape(distance(z - Variable(self.zy) + 0.001), self.D(x).shape) 
             else:
                 return - self.D(x)/self.lc
         
@@ -118,12 +108,11 @@ class Transporter_in_latent():
         elif self.dist=='normal':
             bs, dim, _, _  = z.shape
             prod = F.sum(F.batch_matmul(z.grad.reshape(bs, dim), z.data.reshape(bs, dim), transa=True), 1).reshape(bs, 1, 1, 1) 
-            z.grad = z.grad - z.data*(prod.data)/11.31
+            z.grad = z.grad - z.data*(prod.data)/11.31 # 11.31 = sqrt(128)
             self.opt.update()
         
-###
 def thermalize_spectral_norm(G, D):
-    for i in range(100): # thermalize G, D
+    for i in range(100):
         with chainer.using_config('train', False):
             z = G.make_hidden(10)
             x = G(z)
@@ -144,7 +133,7 @@ def make_image(G, D, batchsize, N_update=100, ot=True, mode='dot', k=1, lr=0.05,
                 Opt = chainer.optimizers.SGD(lr)
             elif optmode=='adam':
                 Opt = chainer.optimizers.Adam(lr, beta1=0.0, beta2=0.9)
-            T = Transporter_in_latent(G, D, k, Opt, z_xp, mode=mode)#, sign=True)
+            T = Transporter_in_latent(G, D, k, Opt, z_xp, mode=mode)
             discriminator_optimal_transport_from(z_xp, T, N_update)
             tz_y = T.get_z_va().data
             y = G(tz_y)

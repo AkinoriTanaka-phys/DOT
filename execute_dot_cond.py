@@ -29,7 +29,6 @@ from source.miscs.random_samples import sample_categorical, sample_continuous
 
 import DOT_cond 
 
-
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('--optmode', type=str, default='sgd')
@@ -45,7 +44,6 @@ def parse_args():
     parser.add_argument('--k', type=int, default=None)
     return parser.parse_args()
 
-###
 def calc_scores(G, D, data, evmodel, dot_mode, N_update, batchsize=50, n_img=50000, k=1.0, lr=0.1):
     for i in range(0, n_img, batchsize):
         im = DOT_cond.make_image(G, D, batchsize, N_update=N_update, mode=dot_mode, k=k, lr=lr, optmode=args.optmode)
@@ -54,15 +52,12 @@ def calc_scores(G, D, data, evmodel, dot_mode, N_update, batchsize=50, n_img=500
             ims = im
         else:
             ims = np.concatenate((ims, im))
-
     if args.samples > 0:
         ims = ims[:args.samples]
-
     fid = calc_FID(ims, evmodel, data=data)
     with chainer.no_backprop_mode(), chainer.using_config('train', False):
         mean, std = inception_score(evmodel, ims)
     return fid, mean, std
-
 
 def main(args, G, D, data, evmodel, k, transport, N_update, showing_period):
     lr = float(args.lr)
@@ -88,27 +83,22 @@ if __name__ == '__main__':
     args = parse_args()
     if not os.path.exists("scores"):
         os.mkdir("scores")
-
     evmodel = Inception()
     serializers.load_hdf5('metric/inception_score.model', evmodel)
-
     G = ResNetGenerator(n_classes=1000)
     D = SNResNetProjectionDiscriminator(n_classes=1000)
     # available on https://drive.google.com/drive/folders/1m04Db3HbN10Tz5XHqiPpIg8kw23fkbSi 
     serializers.load_npz("trained_models/" + args.G, G)
     serializers.load_npz("trained_models/" + args.D, D)
-
     if args.gpu >= 0:
         cuda.get_device(args.gpu).use()
         evmodel.to_gpu()
         G.to_gpu()
         D.to_gpu()
     G, D = DOT_cond.thermalize_spectral_norm(G, D)
-
     if args.k==None:
         k = L.EmbedID(1000, 1, initialW=DOT_cond.return_ks(G, D, nlabels=1000))
         k.to_gpu()
     else:
         k = args.k*xp.ones([1])
     main(args, G, D, args.data, evmodel, k, transport=args.transport, N_update=args.N_update, showing_period=args.showing_period)
-
