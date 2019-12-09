@@ -1,5 +1,6 @@
 # DOT
 This repository is for code submission to NeurIPS2019 of the paper "Discriminator optimal transport"([arXiv](http://arxiv.org/abs/1910.06832)).
+I'm sorry but we need pretrained models to execute following demo except for 2d case.
 
 # Environment
 DL framework for python is `chainer`.
@@ -18,9 +19,19 @@ All necessary files are included.
 ## 2. `execute_dot.py`:
 The python script file executes latent space DOT for CIFAR-10 and STL-10 using trained models.
 Because of Licence issue, we cannot supply GAN training code here, sorry.
-For example, please train your model by using the repository: https://github.com/pfnet-research/chainer-gan-lib
+For example, please train your model by using the repository: https://github.com/pfnet-research/chainer-gan-lib.
 
-`execute_dot.py` executes the latent space DOT with OPTIONS
+To calculate inception score and FID, you need each dataset and mean+std matrix on 2,048 dimensional feature space of inception model.
+All necessary files on computations for score can be installed by following below. `torch` and `torchvision` are required to execute `load_dataset.py`, and `tensorflow` is also necessary to execute `download.py` downloading inception model to measure inception score and FID.
+```
+$ python load_dataset.py --root torchdata/ --data cifar10      # download CIFAR-10 and making training_data/CIFAR.npy
+$ python load_dataset.py --root torchdata/ --data stl10        # download STL-10 without labels and making training_data/STL96.npy
+$ python load_stl_to48.py --gpu 0                              # making downscaled data training_data/STL48.npy
+$ python download.py --outfile metric/inception_score.model    # download inception model
+$ python get_mean_cov_2048featurespace.py --data CIFAR --gpu 0 # calculating mean&cov in 2,048 feature space and saving it to metric/CIFAR_inception_mean.npy and metric/CIFAR_inception_cov.npy
+$ python get_mean_cov_2048featurespace.py --data STL48 --gpu 0 # to metric/STL48_inception_mean.npy and metric/STL48_inception_cov.npy
+```
+After that, one can execute `execute_dot.py` to perform the latent space DOT with OPTIONS
 > `--gpu` : GPU id.<br>
 > `--G` : Generator filename in `trained_models/`.<br>
 > `--D` : Discriminator filename in `trained_models/`.<br>
