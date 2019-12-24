@@ -22,8 +22,11 @@ Because of Licence issue, we cannot supply GAN training code here, sorry.
 For example, please train your model by using the repository: https://github.com/pfnet-research/chainer-gan-lib.
 
 To calculate inception score and FID, you need each dataset and mean+std matrix on 2,048 dimensional feature space of inception model.
-Inception model can be downloaded by `download.py` in https://github.com/mattya/chainer-inception-score.
-Before running codes below, please clone the python script, `download.py`.
+Some scripts in https://github.com/mattya/chainer-inception-score are used below.
+Before running codes below, please clone 
+> `download.py` to this repository, and
+> `inception_score.py` to metric/
+
 All necessary files on computations for score can be installed by following below. 
 `torch` and `torchvision` are required to execute `load_dataset.py`, and `tensorflow` is also necessary to execute `download.py` downloading inception model to measure inception score and FID.
 ```
