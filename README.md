@@ -72,7 +72,7 @@ metric/imagenet_inception_mean.npy
 metric/imagenet_inception_cov.npy
 ```
 This step can be skipped just by using cifar's features by using option `--data CIFAR` of this script.
-OPTIONS are same as 2-2, and the log-file will be saved to `scores/cond_year_month_day_time.txt`.
+OPTIONS are same as 2, and the log-file will be saved to `scores/cond_year_month_day_time.txt`.
 
 ## 4. `execute_mh.py`:
 `execute_mh.py` executes the re-implemented Metropolis-Hastings GAN sampling with OPTIONS
