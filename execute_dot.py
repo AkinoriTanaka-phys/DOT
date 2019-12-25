@@ -23,7 +23,6 @@ import cupy as xp
 from model import *
 import DOT 
 
-from train_GAN import returnG, returnD
 
 def parse_args():
     parser = argparse.ArgumentParser()
@@ -41,6 +40,42 @@ def parse_args():
     return parser.parse_args()
 
 ###
+def returnG(bw, n, mode, net):
+    if mode=='WGAN-GP':
+        if net=='DCGAN':
+            G = DCGANGenerator(bottom_width=bw)
+        elif net=='Resnet':
+            G = ResnetGenerator(bottom_width=bw, n_hidden=128*n)
+    elif mode=='SNGAN':
+        if net=='DCGAN':
+            G = DCGANGenerator(bottom_width=bw)
+        elif net=='Resnet':
+            G = ResnetGenerator(bottom_width=bw, n_hidden=128*n)
+    elif mode=='SAGAN':
+        if net=='DCGAN':
+            G = SADCGANGenerator(bottom_width=bw)
+        elif net=='Resnet':
+            G = SAResnetGenerator(bottom_width=bw, n_hidden=128*n)
+    return G
+
+def returnD(bw, mode, net):
+    if mode=='WGAN-GP':
+        if net=='DCGAN':
+            D = WGANDiscriminator(bottom_width=bw)
+        elif net=='Resnet':
+            D = ResnetDiscriminator(bottom_width=bw)
+    elif mode=='SNGAN':
+        if net=='DCGAN':
+            D = SNDCGANDiscriminator(bottom_width=bw)
+        elif net=='Resnet':
+            D = SNResnetDiscriminator(bottom_width=bw)
+    elif mode=='SAGAN':
+        if net=='DCGAN':
+            D = SADCGANDiscriminator(bottom_width=bw)
+        elif net=='Resnet':
+            D = SAResnetDiscriminator(bottom_width=bw)
+    return D
+
 def calc_scores(G, D, data, evmodel, transport, N_update, batchsize=100, n_img=50000, k=None, lr=0.1, optmode='sgd'):
     for i in range(0, n_img, batchsize):
         im = DOT.make_image(G, D, batchsize, N_update=N_update, ot=True, mode=transport, k=k, lr=lr, optmode=optmode)

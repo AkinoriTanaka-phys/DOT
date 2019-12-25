@@ -1,6 +1,10 @@
 # DOT
 This repository is for code submission to NeurIPS2019 of the paper "Discriminator optimal transport"([arXiv](http://arxiv.org/abs/1910.06832)).
-I'm sorry but we need pretrained models to execute following demo except for 2d case.
+We need pretrained models to execute following demos.
+For 2d demo, all pretrained models are included in this repository.
+Some DCGAN pretrained model files on CIFAR-10 and STL-10 can be downloaded from https://drive.google.com/drive/folders/1UpWndW2xz0X8XaQZNyfSOjyiTbMfWEVs?usp=sharing if you like.
+Please put the files to trained_models/.
+On ImageNet, we used the pretrained models available on https://drive.google.com/drive/folders/1m04Db3HbN10Tz5XHqiPpIg8kw23fkbSi.
 
 # Environment
 DL framework for python is `chainer`.
