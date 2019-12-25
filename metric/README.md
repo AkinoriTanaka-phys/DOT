@@ -1,1 +1,1 @@
-Necessary files (inception_score.py, etc) should be prepared.
+Necessary files (inception_score.model, etc) should be prepared.

@@ -11,8 +11,8 @@ from chainer import serializers
 from chainer import Variable
 import chainer.functions as F
 
-from metric.inception_score import Inception
-from metric.inception_score import inception_score
+from inception_score import Inception
+from inception_score import inception_score
 
 from evaluation import *
 
