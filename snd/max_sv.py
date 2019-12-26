@@ -1,4 +1,7 @@
 # from https://github.com/pfnet-research/chainer-gan-lib/tree/master/common/sn
+# Copyright (c) 2017 pfnet-research
+# Released under the MIT license
+# https://github.com/pfnet-research/chainer-gan-lib/blob/master/LICENSE
 import chainer
 from chainer import cuda
 from chainer.functions.math import sum

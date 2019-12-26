@@ -64,6 +64,9 @@ class Discriminator(chainer.Chain):
 
 #### for images
 #### https://github.com/pfnet-research/chainer-gan-lib/blob/master/common/net.py
+# Copyright (c) 2017 pfnet-research
+# Released under the MIT license
+# https://github.com/pfnet-research/chainer-gan-lib/blob/master/LICENSE
 class DCGANGenerator(chainer.Chain):
     def __init__(self, n_hidden=128, bottom_width=4, ch=512, wscale=0.02,
                  z_distribution="uniform", hidden_activation=F.relu, output_activation=F.tanh, use_bn=True):
