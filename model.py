@@ -63,7 +63,7 @@ class Discriminator(chainer.Chain):
         return h
 
 #### for images
-#### https://github.com/pfnet-research/chainer-gan-lib/blob/master/common/net.py
+#### modified version of https://github.com/pfnet-research/chainer-gan-lib/blob/master/common/net.py
 # Copyright (c) 2017 pfnet-research
 # Released under the MIT license
 # https://github.com/pfnet-research/chainer-gan-lib/blob/master/LICENSE

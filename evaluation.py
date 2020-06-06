@@ -26,7 +26,10 @@ def load_inception_model():
     return model
 
 
-## https://github.com/pfnet-research/chainer-gan-lib/blob/master/common/evaluation.py
+## modified version of https://github.com/pfnet-research/chainer-gan-lib/blob/master/common/evaluation.py
+# Copyright (c) 2017 pfnet-research
+# Released under the MIT license
+# https://github.com/pfnet-research/chainer-gan-lib/blob/master/LICENSE
 def get_mean_cov(model, ims, batch_size=100):
     n, c, w, h = ims.shape
     n_batches = int(math.ceil(float(n) / float(batch_size)))
