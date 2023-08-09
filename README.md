@@ -1,5 +1,5 @@
 # DOT
-This repository is for code submission to NeurIPS2019 of the paper "Discriminator optimal transport"([arXiv](http://arxiv.org/abs/1910.06832)).
+This repository is for code submission to NeurIPS2019 of the paper "Discriminator optimal transport"([arXiv](http://arxiv.org/abs/1910.06832), [errata](errata.pdf)).
 We need pretrained models to execute following demos.
 For 2d demo, all pretrained models are included in this repository.
 Some DCGAN pretrained model files on CIFAR-10 and STL-10 can be downloaded from https://drive.google.com/drive/folders/1UpWndW2xz0X8XaQZNyfSOjyiTbMfWEVs?usp=sharing if you like.
